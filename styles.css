@@ -102,8 +102,8 @@ em{font-style:italic}
 .nav-menu a:not(.nav-cta)::after{content:"";position:absolute;left:0;bottom:-3px;width:0;height:1.5px;background:var(--gold);transition:width .35s var(--ease)}
 .nav-menu a:not(.nav-cta):hover{color:var(--sage-deep)}
 .nav-menu a:not(.nav-cta):hover::after{width:100%}
-.nav-cta{background:var(--sage-deep);color:#fff !important;padding:.6rem 1.25rem;border-radius:999px;transition:background .3s,transform .3s}
-.nav-cta:hover{background:var(--forest);transform:translateY(-2px)}
+.nav-menu a.nav-cta{background:var(--sage-deep);color:#fff !important;padding:.8rem 1.9rem;border-radius:999px;line-height:1;white-space:nowrap;box-shadow:0 10px 22px -14px rgba(63,74,55,.75);transition:background .3s,transform .3s,box-shadow .3s}
+.nav-menu a.nav-cta:hover{background:var(--forest);transform:translateY(-2px);box-shadow:0 16px 30px -14px rgba(63,74,55,.85)}
 
 .nav-toggle{display:none;flex-direction:column;gap:5px;background:none;border:0;cursor:pointer;padding:.4rem}
 .nav-toggle .bar{width:26px;height:2px;background:var(--forest);transition:transform .35s var(--ease),opacity .3s}
@@ -201,6 +201,9 @@ em{font-style:italic}
 .review::before{content:"\201C";position:absolute;top:.2rem;left:1.2rem;font-family:var(--serif);font-size:4rem;color:var(--gold-soft);opacity:.5;line-height:1}
 .review blockquote{font-family:var(--serif);font-size:1.2rem;line-height:1.5;color:var(--forest);position:relative;z-index:1;margin-bottom:1rem}
 .review figcaption{font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:500}
+.reviews-cta{text-align:center;margin-top:clamp(2rem,4vw,2.8rem)}
+.reviews-cta a{font-size:.82rem;letter-spacing:.14em;text-transform:uppercase;font-weight:500;color:var(--sage-deep);border-bottom:1.5px solid var(--gold-soft);padding-bottom:.25rem;transition:color .3s,border-color .3s}
+.reviews-cta a:hover{color:var(--forest);border-color:var(--gold)}
 
 /* ---------- Book / CTA ---------- */
 .book{padding:clamp(4rem,9vw,7rem) 0;background:var(--greige-50)}
