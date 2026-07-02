@@ -30,6 +30,13 @@ to confirm current pricing at booking.
 Open `index.html` in any browser — it's fully static, no build step, no dependencies beyond a single
 Google Fonts link.
 
+## SEO / deploy note
+
+The page includes JSON-LD structured data (`DaySpa`), a canonical link, complete Open Graph +
+Twitter Card tags, `robots.txt`, and `sitemap.xml`. All absolute URLs use the literal placeholder
+`https://REPLACE-WITH-DOMAIN.com/`. Before deploying, do a one-line find-and-replace of that
+placeholder with the real domain across `index.html`, `robots.txt`, and `sitemap.xml`.
+
 ## Tech
 
 Hand-written HTML/CSS/JS. Responsive and mobile-first, accessible (semantic landmarks, labels,
