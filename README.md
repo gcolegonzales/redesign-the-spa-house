@@ -34,7 +34,7 @@ Google Fonts link.
 
 The page includes JSON-LD structured data (`DaySpa`), a canonical link, complete Open Graph +
 Twitter Card tags, `robots.txt`, and `sitemap.xml`. All absolute URLs use the literal placeholder
-`https://REPLACE-WITH-DOMAIN.com/`. Before deploying, do a one-line find-and-replace of that
+`https://thespahouse.com/`. Before deploying, do a one-line find-and-replace of that
 placeholder with the real domain across `index.html`, `robots.txt`, and `sitemap.xml`.
 
 ## Tech
