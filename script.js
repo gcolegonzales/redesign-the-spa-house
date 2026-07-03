@@ -6,6 +6,36 @@
   var menu = document.getElementById('navmenu');
   var scrim = document.querySelector('.nav-scrim');
   var navOpen = false;
+
+  // The drawer (.nav-menu) is authored inside .site-header, which is
+  // position:fixed and thus forms a stacking context. Trapped there, the
+  // drawer's z-index (120) can't rise above the root-level .nav-scrim (110), so
+  // on mobile the scrim paints over the links and swallows taps — tapping a nav
+  // link hit-tests the scrim and just closes the drawer. Fix: on mobile, hoist
+  // the drawer out to <body>, directly AFTER the scrim so it stacks above it,
+  // escaping the header's stacking context. On desktop the same <ul> is the
+  // static flex nav row, so we must restore it into the header — done
+  // responsively via matchMedia so the desktop nav stays intact.
+  var navHome = menu ? menu.parentNode : null;      // original <nav class="nav">
+  var mqMobile = window.matchMedia('(max-width:760px)');
+  function placeDrawer(isMobile) {
+    if (!menu || !scrim) return;
+    if (isMobile) {
+      // Put drawer immediately after the scrim at body level (scrim below, panel above).
+      if (menu.previousElementSibling !== scrim || menu.parentNode !== scrim.parentNode) {
+        scrim.parentNode.insertBefore(menu, scrim.nextSibling);
+      }
+    } else if (navHome && menu.parentNode !== navHome) {
+      navHome.appendChild(menu);   // back into the header for the desktop row
+    }
+  }
+  placeDrawer(mqMobile.matches);
+  (mqMobile.addEventListener
+    ? mqMobile.addEventListener.bind(mqMobile, 'change')
+    : mqMobile.addListener.bind(mqMobile))(function (e) {
+      placeDrawer(e.matches);
+      if (!e.matches) setNav(false);  // leaving mobile: ensure drawer state is reset
+    });
   function setNav(open) {
     navOpen = open;
     toggle.setAttribute('aria-expanded', String(open));
