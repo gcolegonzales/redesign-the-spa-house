@@ -34,25 +34,79 @@
     ? mqMobile.addEventListener.bind(mqMobile, 'change')
     : mqMobile.addListener.bind(mqMobile))(function (e) {
       placeDrawer(e.matches);
-      if (!e.matches) setNav(false);  // leaving mobile: ensure drawer state is reset
+      setNav(false);          // reset drawer + toggle state across the breakpoint
+      syncDrawerHidden();     // desktop: expose nav; mobile-closed: hide off-canvas drawer
     });
+  // Everything that should be hidden from AT / removed from tab order while the
+  // drawer is open (the whole page except the header controls + the drawer).
+  var main = document.getElementById('main');
+  var footer = document.querySelector('.site-footer');
+  var inertTargets = [main, footer].filter(Boolean);
+
+  function focusables() {
+    return Array.prototype.filter.call(
+      menu.querySelectorAll('a[href],button:not([disabled]),input,select,textarea,[tabindex]:not([tabindex="-1"])'),
+      function (el) { return el.offsetParent !== null || el.getClientRects().length; }
+    );
+  }
+
+  // Keep the closed off-canvas drawer out of the tab order / AT tree on mobile.
+  function syncDrawerHidden() {
+    if (mqMobile.matches && !navOpen) {
+      menu.setAttribute('inert', '');
+      menu.setAttribute('aria-hidden', 'true');
+    } else {
+      menu.removeAttribute('inert');
+      menu.removeAttribute('aria-hidden');
+    }
+  }
+
   function setNav(open) {
     navOpen = open;
     toggle.setAttribute('aria-expanded', String(open));
+    toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
     menu.classList.toggle('open', open);
     document.body.classList.toggle('nav-open', open);
-    if (open) header.classList.remove('hide'); // never open into a hidden header
+    if (open && header) header.classList.remove('hide'); // never open into a hidden header
+
+    if (open) {
+      inertTargets.forEach(function (el) { el.setAttribute('inert', ''); el.setAttribute('aria-hidden', 'true'); });
+      menu.removeAttribute('inert');
+      menu.removeAttribute('aria-hidden');
+      var f = focusables();
+      if (f.length) f[0].focus();
+    } else {
+      inertTargets.forEach(function (el) { el.removeAttribute('inert'); el.removeAttribute('aria-hidden'); });
+      syncDrawerHidden();
+    }
   }
   toggle.addEventListener('click', function () {
-    setNav(toggle.getAttribute('aria-expanded') !== 'true');
+    var willOpen = toggle.getAttribute('aria-expanded') !== 'true';
+    setNav(willOpen);
+    if (!willOpen) toggle.focus(); // closing via hamburger: keep focus on the toggle
   });
   menu.addEventListener('click', function (e) {
-    if (e.target.closest('a')) setNav(false);
+    if (e.target.closest('a')) { setNav(false); toggle.focus(); }
   });
-  if (scrim) scrim.addEventListener('click', function () { setNav(false); });
+  if (scrim) scrim.addEventListener('click', function () { setNav(false); toggle.focus(); });
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') setNav(false);
+    if (!navOpen) return;
+    if (e.key === 'Escape') { setNav(false); toggle.focus(); return; }
+    if (e.key === 'Tab') {
+      // Trap Tab within the drawer, cycling through its links and the toggle.
+      // We manage focus explicitly so it can never land on the (still-visible)
+      // header brand/skip-link or any other page control.
+      var loop = focusables().concat([toggle]);
+      if (!loop.length) { e.preventDefault(); return; }
+      e.preventDefault();
+      var idx = loop.indexOf(document.activeElement);
+      var next;
+      if (e.shiftKey) next = idx <= 0 ? loop.length - 1 : idx - 1;
+      else next = idx === -1 || idx === loop.length - 1 ? 0 : idx + 1;
+      loop[next].focus();
+    }
   });
+  syncDrawerHidden();
 
   // ---- Sticky / shrinking header + hide-on-down / reveal-on-up ----
   var header = document.getElementById('siteHeader');
