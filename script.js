@@ -1,25 +1,17 @@
 (function () {
   'use strict';
 
-  // ---- Sticky / shrinking header ----
-  var header = document.getElementById('siteHeader');
-  var lastScroll = -1;
-  function onScroll() {
-    var y = window.scrollY || window.pageYOffset;
-    if (y === lastScroll) return;
-    lastScroll = y;
-    header.classList.toggle('scrolled', y > 20);
-  }
-  window.addEventListener('scroll', onScroll, { passive: true });
-  onScroll();
-
   // ---- Mobile nav ----
   var toggle = document.querySelector('.nav-toggle');
   var menu = document.getElementById('navmenu');
+  var scrim = document.querySelector('.nav-scrim');
+  var navOpen = false;
   function setNav(open) {
+    navOpen = open;
     toggle.setAttribute('aria-expanded', String(open));
     menu.classList.toggle('open', open);
     document.body.classList.toggle('nav-open', open);
+    if (open) header.classList.remove('hide'); // never open into a hidden header
   }
   toggle.addEventListener('click', function () {
     setNav(toggle.getAttribute('aria-expanded') !== 'true');
@@ -27,9 +19,28 @@
   menu.addEventListener('click', function (e) {
     if (e.target.closest('a')) setNav(false);
   });
+  if (scrim) scrim.addEventListener('click', function () { setNav(false); });
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') setNav(false);
   });
+
+  // ---- Sticky / shrinking header + hide-on-down / reveal-on-up ----
+  var header = document.getElementById('siteHeader');
+  var lastScroll = -1;
+  function onScroll() {
+    var y = window.scrollY || window.pageYOffset;
+    if (y === lastScroll) return;
+    var goingDown = lastScroll >= 0 && y > lastScroll;
+    header.classList.toggle('scrolled', y > 20);
+    // Reveal on ANY upward scroll; hide only when scrolling down past the header.
+    if (!navOpen) {
+      if (goingDown && y > 120) header.classList.add('hide');
+      else if (y < lastScroll || y <= 120) header.classList.remove('hide');
+    }
+    lastScroll = y;
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
 
   // ---- Scroll reveal ----
   var reveals = document.querySelectorAll('.reveal');
