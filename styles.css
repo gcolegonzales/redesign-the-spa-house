@@ -33,7 +33,7 @@
 }
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth;overflow-x:hidden;max-width:100%}
+html{scroll-behavior:smooth;overflow-x:clip;max-width:100%}
 body{
   font-family:var(--sans);
   color:var(--ink);
@@ -41,7 +41,7 @@ body{
   line-height:1.65;
   font-weight:400;
   -webkit-font-smoothing:antialiased;
-  overflow-x:hidden;
+  overflow-x:clip;
   max-width:100%;
   -webkit-tap-highlight-color:transparent;
 }
