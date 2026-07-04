@@ -18,6 +18,20 @@
   // responsively via matchMedia so the desktop nav stays intact.
   var navHome = menu ? menu.parentNode : null;      // original <nav class="nav">
   var mqMobile = window.matchMedia('(max-width:760px)');
+
+  // In-panel close (X) — the single, always-visible close control on mobile.
+  // Injected once so the drawer owns a real, tappable X (the hamburger hides on open).
+  var navClose = null;
+  if (menu) {
+    navClose = document.createElement('button');
+    navClose.type = 'button';
+    navClose.className = 'nav-close';
+    navClose.setAttribute('aria-label', 'Close menu');
+    navClose.innerHTML =
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+      'stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+    menu.insertBefore(navClose, menu.firstChild);
+  }
   function placeDrawer(isMobile) {
     if (!menu || !scrim) return;
     if (isMobile) {
@@ -74,7 +88,7 @@
       menu.removeAttribute('inert');
       menu.removeAttribute('aria-hidden');
       var f = focusables();
-      if (f.length) f[0].focus();
+      if (f.length) f[0].focus({ preventScroll: true }); // preventScroll so opening never jumps the page (G3)
     } else {
       inertTargets.forEach(function (el) { el.removeAttribute('inert'); el.removeAttribute('aria-hidden'); });
       syncDrawerHidden();
@@ -83,15 +97,18 @@
   toggle.addEventListener('click', function () {
     var willOpen = toggle.getAttribute('aria-expanded') !== 'true';
     setNav(willOpen);
-    if (!willOpen) toggle.focus(); // closing via hamburger: keep focus on the toggle
+    if (!willOpen) toggle.focus({ preventScroll: true }); // closing via hamburger: keep focus on the toggle
+  });
+  if (navClose) navClose.addEventListener('click', function () {
+    setNav(false); toggle.focus({ preventScroll: true });
   });
   menu.addEventListener('click', function (e) {
-    if (e.target.closest('a')) { setNav(false); toggle.focus(); }
+    if (e.target.closest('a')) { setNav(false); toggle.focus({ preventScroll: true }); }
   });
-  if (scrim) scrim.addEventListener('click', function () { setNav(false); toggle.focus(); });
+  if (scrim) scrim.addEventListener('click', function () { setNav(false); toggle.focus({ preventScroll: true }); });
   document.addEventListener('keydown', function (e) {
     if (!navOpen) return;
-    if (e.key === 'Escape') { setNav(false); toggle.focus(); return; }
+    if (e.key === 'Escape') { setNav(false); toggle.focus({ preventScroll: true }); return; }
     if (e.key === 'Tab') {
       // Trap Tab within the drawer, cycling through its links and the toggle.
       // We manage focus explicitly so it can never land on the (still-visible)
@@ -103,7 +120,7 @@
       var next;
       if (e.shiftKey) next = idx <= 0 ? loop.length - 1 : idx - 1;
       else next = idx === -1 || idx === loop.length - 1 ? 0 : idx + 1;
-      loop[next].focus();
+      loop[next].focus({ preventScroll: true });
     }
   });
   syncDrawerHidden();
